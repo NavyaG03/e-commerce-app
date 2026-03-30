@@ -62,15 +62,18 @@ export const categories = [
     id: 1,
     title: "SHIRT STYLES",
     img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=500&fit=crop",
+    cat:"men"
   },
   {
     id: 2,
-    title: "LINGERIE LOVE",
+    title: "DRESS UP",
     img: "https://images.unsplash.com/photo-1621184455862-c163dfb30e0f?w=400&h=500&fit=crop",
+    cat:"woman"
   },
   {
     id: 3,
     title: "LIGHT JACKETS",
     img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=500&fit=crop",
+    cat:"men"
   },
 ];

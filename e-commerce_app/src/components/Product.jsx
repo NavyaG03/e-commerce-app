@@ -4,21 +4,20 @@ import {
   SearchOutlined,
   ShoppingCartOutlined,
 } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 const Info = styled.div`
-opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color:rgba(0,0,0,0.2);
+  opacity: 0;
+  width: 240px;
+  height: 300px;
+  background-color: rgba(0,0,0,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 3;
   transition: all 0.5s ease;
   cursor: pointer;
+  position: absolute;
 `;
 
 const Container = styled.div`
@@ -31,6 +30,7 @@ const Container = styled.div`
   align-items: center;
   background-color: #f5fbfd;
   position: relative;
+  overflow: hidden;
 
   &:hover ${Info}{
     opacity: 1;
@@ -46,7 +46,9 @@ const Circle = styled.div`
 `;
 
 const Image = styled.img`
-  height: 75%;
+  width: 200px;
+  height: 260px;
+  object-fit: cover;
   z-index: 2;
 `;
 const Icon = styled.div`
@@ -74,7 +76,9 @@ export default function Product({ item }) {
           <ShoppingCartOutlined />
         </Icon>
         <Icon>
+          <Link to={`/product/${item._id}`}>
           <SearchOutlined />
+          </Link>
         </Icon>
         <Icon>
           <FavoriteBorderOutlined />

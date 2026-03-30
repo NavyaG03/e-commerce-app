@@ -4,8 +4,12 @@ import Navbar from "../components/Navbar";
 import Announcement from "../components/Announcement";
 import Newsletter from "../components/Newsletter";
 import Footer from "../components/Footer";
-import jumpsuit from "../assets/jumpsuit.jpg";
 import { mobile } from "../responsive";
+import { useLocation } from "react-router-dom";
+import { publicRequest } from "../requestMethods";
+import { useState, useEffect } from "react";
+import { addProduct } from "../redux/cartRedux";
+import { useDispatch } from "react-redux";
 
 const Container = styled.div``;
 const Wrapper = styled.div`
@@ -59,7 +63,7 @@ const FilterTitle = styled.span`
   font-weight: 200;
 `;
 
-const FilterColour = styled.div`
+const FilterColor = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -118,49 +122,70 @@ const Button = styled.button`
   }
 `;
 
+
 export default function Product() {
+  const location = useLocation();
+  const id = location.pathname.split("/")[2];
+  const [product, setproduct] = useState({});
+  const [quantity, setquantity] = useState(1);
+  const [color, setColor] = useState(null)
+  const [size, setsize] = useState(null)
+  const dispatch=useDispatch()
+  useEffect(() => {
+    const getProduct = async () => {
+      try {
+        const res = await publicRequest.get("/product/find/" + id);
+        setproduct(res.data);
+        if (res.data.size?.length > 0) setsize(res.data.size[0]);
+      } catch {}
+    };
+    getProduct();
+  }, [id]);
+
+  const handleQuantity = (type) => {
+    if (type == "dec") 
+      quantity>1 && setquantity(quantity - 1);
+    else setquantity(quantity + 1);
+  };
+
+  const handleClick=()=>{
+    dispatch(addProduct({...product,quantity,size,color}))
+  }
   return (
     <Container>
       <Navbar />
       <Announcement />
       <Wrapper>
         <ImgContainer>
-          <Image src={jumpsuit} />
+          <Image src={product.img} />
         </ImgContainer>
         <InfoContainer>
-          <Title>Denim Jumpsuit</Title>
-          <Desc>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cum
-            doloremque quod possimus porro iste est facilis praesentium, tempore
-            excepturi suscipit, perspiciatis sequi voluptate nihil adipisci.
-            Maiores sint odit ipsum delectus.
-          </Desc>
-          <Price>₹1000</Price>
+          <Title>{product.title}</Title>
+          <Desc>{product.desc}</Desc>
+          <Price>₹{product.price}</Price>
           <FilterContainer>
             <Filter>
               <FilterTitle>Colour</FilterTitle>
-              <FilterColour color="black" />
-              <FilterColour color="darkblue" />
-              <FilterColour color="gray" />
+              {product.colour?.map((color) => (
+                <FilterColor key={color} color={color} onClick={()=>setColor(color)}/>
+              ))}
             </Filter>
             <Filter>
               <FilterTitle style={{ marginLeft: "50px" }}>Size</FilterTitle>
-              <FilterSize>
-                <FilterSizeOption>XS</FilterSizeOption>
-                <FilterSizeOption>S</FilterSizeOption>
-                <FilterSizeOption>M</FilterSizeOption>
-                <FilterSizeOption>L</FilterSizeOption>
-                <FilterSizeOption>XL</FilterSizeOption>
+              <FilterSize onChange={(e)=>setsize(e.target.value)}>
+                {product.size?.map((size) => (
+                  <FilterSizeOption key={size} >{size}</FilterSizeOption>
+                ))}
               </FilterSize>
             </Filter>
           </FilterContainer>
           <AddContainer>
             <AmountContainer>
-              <Remove />
-              <Amount>1</Amount>
-              <Add />
+              <Remove onClick={() => handleQuantity("dec")} />
+              <Amount>{quantity}</Amount>
+              <Add onClick={() => handleQuantity("inc")} />
             </AmountContainer>
-            <Button>ADD TO CART</Button>
+            <Button onClick={handleClick}>ADD TO CART</Button>
           </AddContainer>
         </InfoContainer>
       </Wrapper>

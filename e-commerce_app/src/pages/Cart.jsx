@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import Announcement from "../components/Announcement";
 import Footer from "../components/Footer";
 import { mobile } from "../responsive";
+import { useSelector, useDispatch } from "react-redux";
+import { incrementQuantity, decrementQuantity } from "../redux/cartRedux";
 
 const Container = styled.div``;
 
@@ -69,6 +71,8 @@ const ProductDetail = styled.div`
 
 const Image = styled.img`
   width: 200px;
+  height: 200px;
+  object-fit: cover;
 `;
 
 const Details = styled.div`
@@ -82,11 +86,11 @@ const ProductName = styled.span``;
 
 const ProductId = styled.span``;
 
-const ProductColor = styled.div`
+const ProductColour = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: ${(props) => props.color};
+  background-color: ${(props) => props.colour};
 `;
 
 const ProductSize = styled.span``;
@@ -163,6 +167,8 @@ const Button = styled.button`
 `;
 
 export default function Cart() {
+  const cart=useSelector(state=>state.cart)
+  const dispatch=useDispatch()
   return (
     <Container>
       <Navbar />
@@ -179,63 +185,42 @@ export default function Cart() {
         </Top>
         <Bottom>
           <Info>
-            <Product>
-              <ProductDetail>
-                <Image src="https://i.ibb.co/S6qMxwr/jean.jpg" />
-                <Details>
-                  <ProductName>
-                    <b>Product:</b> JESSIE THUNDER SHOES
-                  </ProductName>
-                  <ProductId>
-                    <b>ID:</b> 93813718
-                  </ProductId>
-                  <ProductColor color="black" />
-                  <ProductSize>
-                    <b>Size:</b> 37.5
-                  </ProductSize>
-                </Details>
-              </ProductDetail>
-              <PriceDetail>
-                <ProductAmountContainer>
-                  <Remove />
-                  <ProductAmount>2</ProductAmount>
-                  <Add />
-                </ProductAmountContainer>
-                <ProductPrice>₹ 900</ProductPrice>
-              </PriceDetail>
-            </Product>
-            <Hr />
-            <Product>
-              <ProductDetail>
-                <Image src="https://i.ibb.co/S6qMxwr/jean.jpg" />
-                <Details>
-                  <ProductName>
-                    <b>Product:</b> HAKURA T-SHIRT
-                  </ProductName>
-                  <ProductId>
-                    <b>ID:</b> 93813719
-                  </ProductId>
-                  <ProductColor color="gray" />
-                  <ProductSize>
-                    <b>Size:</b> M
-                  </ProductSize>
-                </Details>
-              </ProductDetail>
-              <PriceDetail>
-                <ProductAmountContainer>
-                  <Remove />
-                  <ProductAmount>1</ProductAmount>
-                  <Add />
-                </ProductAmountContainer>
-                <ProductPrice>₹ 500</ProductPrice>
-              </PriceDetail>
-            </Product>
+            {cart.products.map((product, index) => (
+              <>
+                <Product key={product._id}>
+                  <ProductDetail>
+                    <Image src={product.img} />
+                    <Details>
+                      <ProductName>
+                        <b>Product:</b> {product.title}
+                      </ProductName>
+                      <ProductId>
+                        <b>ID:</b> {product._id}
+                      </ProductId>
+                      <ProductColour colour={product.colour} />
+                      <ProductSize>
+                        <b>Size:</b> {product.size}
+                      </ProductSize>
+                    </Details>
+                  </ProductDetail>
+                  <PriceDetail>
+                    <ProductAmountContainer>
+                      <Remove style={{cursor:"pointer"}} onClick={()=>dispatch(decrementQuantity(product._id))} />
+                      <ProductAmount>{product.quantity}</ProductAmount>
+                      <Add style={{cursor:"pointer"}} onClick={()=>dispatch(incrementQuantity(product._id))} />
+                    </ProductAmountContainer>
+                    <ProductPrice>₹ {product.price*product.quantity}</ProductPrice>
+                  </PriceDetail>
+                </Product>
+                {index < cart.products.length - 1 && <Hr />}
+              </>
+            ))}
           </Info>
           <Summary>
             <SummaryTitle>ORDER SUMMARY</SummaryTitle>
             <SummaryItem>
               <SummaryItemText>Subtotal</SummaryItemText>
-              <SummaryItemPrice>₹ 1,400</SummaryItemPrice>
+              <SummaryItemPrice>{cart.total}</SummaryItemPrice>
             </SummaryItem>
             <SummaryItem>
               <SummaryItemText>Estimated Shipping</SummaryItemText>
@@ -247,7 +232,7 @@ export default function Cart() {
             </SummaryItem>
             <SummaryItem type="total">
               <SummaryItemText>Total</SummaryItemText>
-              <SummaryItemPrice>₹ 1,400</SummaryItemPrice>
+              <SummaryItemPrice>{cart.total}</SummaryItemPrice>
             </SummaryItem>
             <Button>CHECKOUT NOW</Button>
           </Summary>
