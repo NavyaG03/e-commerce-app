@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import { mobile } from "../responsive";
 import { useSelector, useDispatch } from "react-redux";
 import { incrementQuantity, decrementQuantity } from "../redux/cartRedux";
+import { userRequest } from "../requestMethods";
 
 const Container = styled.div``;
 
@@ -167,8 +168,27 @@ const Button = styled.button`
 `;
 
 export default function Cart() {
-  const cart=useSelector(state=>state.cart)
-  const dispatch=useDispatch()
+  const cart = useSelector((state) => state.cart);
+  const currentUser = useSelector((state) => state.user.currentUser);
+  const dispatch = useDispatch();
+
+  const handleCheckout = async () => {
+    try {
+      await userRequest.post("/order", {
+        userId: currentUser._id,
+        products: cart.products.map((p) => ({
+          productId: p._id,
+          quantity: p.quantity,
+        })),
+        amount: cart.total,
+        address: currentUser.address || "N/A",
+      });
+      alert("Order placed successfully!");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <Container>
       <Navbar />
@@ -176,12 +196,12 @@ export default function Cart() {
       <Wrapper>
         <Title>YOUR BAG</Title>
         <Top>
-          <TopButton>CONTINUE SHOPPING</TopButton>
+          <TopButton>CONTINUE SHOPPING</TopButton>/
           <TopTexts>
             <TopText>Shopping Bag (2)</TopText>
             <TopText>Your Wishlist (0)</TopText>
           </TopTexts>
-          <TopButton type="filled">CHECKOUT NOW</TopButton>
+          <TopButton type="filled" onClick={handleCheckout}>CHECKOUT NOW</TopButton>
         </Top>
         <Bottom>
           <Info>
@@ -234,7 +254,7 @@ export default function Cart() {
               <SummaryItemText>Total</SummaryItemText>
               <SummaryItemPrice>{cart.total}</SummaryItemPrice>
             </SummaryItem>
-            <Button>CHECKOUT NOW</Button>
+            <Button onClick={handleCheckout}>CHECKOUT NOW</Button>
           </Summary>
         </Bottom>
       </Wrapper>

@@ -1,8 +1,6 @@
 import axios from "axios";
 
 const BASE_URL="http://localhost:5000/api/"
-const TOKEN = JSON.parse(JSON.parse(localStorage.getItem("persist:root")).user)
-  .currentUser.accessToken;
 
 export const publicRequest=axios.create({
     baseURL:BASE_URL
@@ -10,5 +8,13 @@ export const publicRequest=axios.create({
 
 export const userRequest=axios.create({
     baseURL:BASE_URL,
-    headers:{token :`BEARER ${TOKEN}` }
 })
+
+userRequest.interceptors.request.use((config) => {
+  const persistRoot = localStorage.getItem("persist:root");
+  const token = persistRoot
+    ? JSON.parse(JSON.parse(persistRoot).user)?.currentUser?.accessToken
+    : null;
+  if (token) config.headers.token = `BEARER ${token}`;
+  return config;
+});
